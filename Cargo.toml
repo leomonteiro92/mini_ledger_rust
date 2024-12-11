@@ -1,0 +1,8 @@
+[package]
+name = "mini-ledger-rust"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+actix-web = "4.0"
+tonic-build = "0.5"

@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package balance;
+
+service Balance {
+    rpc Create(CreateBalanceRequest) returns (CreateBalanceResponse);
+}
+
+message CreateBalanceRequest {
+    string uuid = 1;
+    string currency = 2;
+    float amount = 3;
+}
+
+message CreateBalanceResponse {
+    string status = 1;
+    bool idempotent = 2;
+    optional string error_message = 3;
+}
