@@ -1,38 +1,59 @@
+use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
+use dto::account::AccountCreationRequest;
+use handler::state::AppState;
+use service::account::AccountServiceImpl;
 use std::{
-    fmt::format,
-    fs,
-    io::{BufRead, BufReader, Write},
-    net::{TcpListener, TcpStream},
-    thread,
-    time::Duration,
+    env,
+    sync::{Arc, Mutex},
 };
+use storage::in_memory::InMemoryStorage;
+use uuid::Uuid;
 
-fn main() {
-    let listener = TcpListener::bind("127.0.0.1:7878").expect("Failed to bind to address");
+mod dto;
+mod handler;
+mod model;
+mod service;
+mod storage;
 
-    for stream in listener.incoming() {
-        let _stream = stream.unwrap();
-
-        handle_conn(_stream);
-    }
+#[post("/accounts")]
+pub async fn create_account(
+    state: web::Data<AppState>,
+    account_creation_request: web::Json<AccountCreationRequest>,
+) -> impl Responder {
+    let account = account_creation_request.to_account();
+    let created_account_result = state.account_service.create_one(account);
+    created_account_result
+        .map(|created_account| HttpResponse::Ok().json(created_account))
+        .unwrap_or_else(|error| HttpResponse::InternalServerError().body(error))
 }
 
-fn handle_conn(mut stream: TcpStream) {
-    let buf_reader = BufReader::new(&stream);
-    let request_line = buf_reader.lines().next().unwrap().unwrap();
+#[get("/accounts/{param_uuid}")]
+pub async fn get_account_by_id(
+    state: web::Data<AppState>,
+    param_uuid: web::Path<Uuid>,
+) -> impl Responder {
+    let account_result = state.account_service.get_by_uuid(param_uuid.into_inner());
+    account_result
+        .map(|account| HttpResponse::Ok().json(account))
+        .unwrap_or_else(|error| HttpResponse::NotFound().body(error))
+}
 
-    let (status_line, filename) = match &request_line[..] {
-        "GET / HTTP/1.1" => ("HTTP/1.1 200 OK", "index.html"),
-        "GET /sleep HTTP/1.1" => {
-            thread::sleep(Duration::from_secs(5));
-            ("HTTP/1.1 200 OK", "index.html")
-        }
-        _ => ("HTTP/1.1 404 NOT FOUND", "404.html"),
-    };
+#[actix_web::main]
+async fn main() -> std::io::Result<()> {
+    env::set_var("RUST_LOG", "debug");
+    env_logger::init();
 
-    let contents = fs::read_to_string(filename).unwrap();
-    let len = contents.len();
-
-    let res = format!("{status_line}\r\nContent-Length: {len}\r\n\r\n{contents}");
-    stream.write_all(res.as_bytes()).unwrap();
+    let storage = Arc::new(Mutex::new(InMemoryStorage::new()));
+    let account_service = Arc::new(AccountServiceImpl::new(storage));
+    let state = AppState::new(account_service);
+    let app_state = web::Data::new(state);
+    HttpServer::new(move || {
+        App::new()
+            .app_data(app_state.clone())
+            .service(create_account)
+            .service(get_account_by_id)
+    })
+    .bind("127.0.0.1:8080")?
+    .run()
+    .await
 }
