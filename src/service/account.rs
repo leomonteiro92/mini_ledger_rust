@@ -26,7 +26,7 @@ impl AccountService for AccountServiceImpl {
             .map_err(|error| error);
     }
 
-    fn get_by_uuid(&self, uuid: Uuid) -> Result<Account, String> {
+    fn get_by_uuid(&self, uuid: Uuid) -> Result<Option<Account>, String> {
         let storage = self.storage.lock().unwrap();
         storage.get_account(uuid)
     }

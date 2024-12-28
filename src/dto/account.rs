@@ -10,6 +10,6 @@ pub struct AccountCreationRequest {
 
 impl AccountCreationRequest {
     pub fn to_account(&self) -> Account {
-        Account::new(self.uuid, self.currency.clone())
+        Account::new(self.uuid, &self.currency)
     }
 }

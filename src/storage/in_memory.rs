@@ -4,7 +4,7 @@ use uuid::Uuid;
 
 use crate::model::account::Account;
 
-use super::types::Storage;
+use super::Storage;
 
 pub struct InMemoryStorage {
     accounts: HashMap<Uuid, Account>,
@@ -24,10 +24,24 @@ impl Storage for InMemoryStorage {
         Ok(())
     }
 
-    fn get_account(&self, uuid: Uuid) -> Result<Account, String> {
+    fn get_account(&self, uuid: Uuid) -> Result<Option<Account>, String> {
         self.accounts
             .get(&uuid)
-            .map(|account| account.clone())
+            .map(|account| Some(account.clone()))
             .ok_or_else(|| "Account not found".to_string())
+    }
+
+    fn save_transactions(
+        &mut self,
+        transactions: Vec<crate::model::transaction::Transaction>,
+    ) -> Result<(), String> {
+        for transaction in transactions {
+            let account = self
+                .accounts
+                .get_mut(&transaction.account_id)
+                .ok_or_else(|| "Account not found".to_string())?;
+            account.balance += transaction.amount;
+        }
+        Ok(())
     }
 }

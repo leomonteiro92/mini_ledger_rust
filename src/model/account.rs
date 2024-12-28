@@ -14,10 +14,10 @@ pub struct Account {
 }
 
 impl Account {
-    pub fn new(uuid: Uuid, currency: String) -> Self {
+    pub fn new(uuid: Uuid, currency: &String) -> Self {
         Account {
             uuid,
-            currency,
+            currency: currency.clone(),
             balance: 0.0,
             created_at: chrono::Utc::now(),
             last_updated_at: chrono::Utc::now(),

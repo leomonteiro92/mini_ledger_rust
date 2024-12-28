@@ -1,13 +1,20 @@
 use std::sync::Arc;
 
-use crate::service::types::AccountService;
+use crate::service::types::{AccountService, TransactionService};
 
 pub struct AppState {
     pub account_service: Arc<dyn AccountService>,
+    pub transaction_service: Arc<dyn TransactionService>,
 }
 
 impl AppState {
-    pub fn new(account_service: Arc<dyn AccountService>) -> Self {
-        AppState { account_service }
+    pub fn new(
+        account_service: Arc<dyn AccountService>,
+        transaction_service: Arc<dyn TransactionService>,
+    ) -> Self {
+        AppState {
+            account_service,
+            transaction_service,
+        }
     }
 }
