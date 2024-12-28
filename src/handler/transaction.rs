@@ -13,7 +13,8 @@ pub async fn create_deposit(
 ) -> impl Responder {
     let result = state
         .transaction_service
-        .deposit(deposit_request.into_inner());
+        .deposit(deposit_request.into_inner())
+        .await;
     result
         .map(|txs| HttpResponse::Ok().json(txs))
         .unwrap_or_else(|error| HttpResponse::InternalServerError().body(error))
@@ -26,7 +27,8 @@ pub async fn create_withdrawal(
 ) -> impl Responder {
     let result = state
         .transaction_service
-        .withdrawal(withdrawal_request.into_inner());
+        .withdrawal(withdrawal_request.into_inner())
+        .await;
     result
         .map(|txs| HttpResponse::Ok().json(txs))
         .unwrap_or_else(|error| HttpResponse::InternalServerError().body(error))
@@ -39,7 +41,8 @@ pub async fn create_transfer(
 ) -> impl Responder {
     let result = state
         .transaction_service
-        .transfer(transfer_request.into_inner());
+        .transfer(transfer_request.into_inner())
+        .await;
     result
         .map(|txs| HttpResponse::Ok().json(txs))
         .unwrap_or_else(|error| HttpResponse::InternalServerError().body(error))

@@ -1,37 +1,38 @@
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 
+use async_trait::async_trait;
+use tokio::sync::Mutex;
 use uuid::Uuid;
 
 use crate::{model::account::Account, storage::types::Storage};
 
 use super::types::AccountService;
 
-#[derive(Clone)]
-pub struct AccountServiceImpl {
-    storage: Arc<Mutex<dyn Storage>>,
+#[derive(Debug, Clone)]
+pub struct AccountServiceImpl<S: Storage> {
+    storage: Arc<Mutex<S>>,
 }
 
-impl AccountServiceImpl {
-    pub fn new(storage: Arc<Mutex<dyn Storage>>) -> Self {
+impl<S: Storage> AccountServiceImpl<S> {
+    pub fn new(storage: Arc<Mutex<S>>) -> Self {
         AccountServiceImpl { storage }
     }
 }
 
-impl AccountService for AccountServiceImpl {
-    fn create_one(&self, account: Account) -> Result<Account, String> {
-        let mut storage = self.storage.lock().unwrap();
-        return storage
-            .save_account(account.clone())
-            .map(|_| account)
-            .map_err(|error| error);
+#[async_trait]
+impl<S: Storage> AccountService for AccountServiceImpl<S> {
+    async fn create_one(&self, account: Account) -> Result<Account, String> {
+        let storage = self.storage.lock().await;
+        storage.save_account(account.clone()).await?;
+        Ok(account)
     }
 
-    fn get_by_uuid(&self, uuid: Uuid) -> Result<Option<Account>, String> {
-        let storage = self.storage.lock().unwrap();
-        let result = storage.get_account(uuid);
+    async fn get_by_uuid(&self, uuid: Uuid) -> Result<Option<Account>, String> {
+        let storage = self.storage.lock().await;
+        let result = storage.get_account(uuid).await;
         match result {
             Ok(account) => Ok(account),
-            Err(error) => Err(error.to_string()),
+            Err(e) => Err(e),
         }
     }
 }

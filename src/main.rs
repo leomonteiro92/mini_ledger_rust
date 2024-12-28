@@ -1,11 +1,9 @@
 use actix_web::{web, App, HttpServer};
 use handler::AppState;
 use service::{transaction::TransactionServiceImpl, AccountServiceImpl};
-use std::{
-    env,
-    sync::{Arc, Mutex},
-};
+use std::{env, sync::Arc};
 use storage::InMemoryStorage;
+use tokio::sync::Mutex;
 
 mod dto;
 mod handler;

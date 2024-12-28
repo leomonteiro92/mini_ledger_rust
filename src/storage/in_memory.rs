@@ -1,5 +1,7 @@
-use std::{collections::HashMap, fmt::Error};
+use std::collections::HashMap;
 
+use async_trait::async_trait;
+use tokio::sync::Mutex;
 use uuid::Uuid;
 
 use crate::model::{account::Account, transaction::Transaction};
@@ -7,40 +9,40 @@ use crate::model::{account::Account, transaction::Transaction};
 use super::Storage;
 
 pub struct InMemoryStorage {
-    accounts: HashMap<Uuid, Account>,
+    accounts: Mutex<HashMap<Uuid, Account>>,
 }
 
 impl InMemoryStorage {
     pub fn new() -> Self {
         InMemoryStorage {
-            accounts: HashMap::new(),
+            accounts: Mutex::new(HashMap::new()),
         }
     }
 }
 
+#[async_trait]
 impl Storage for InMemoryStorage {
-    fn save_account(&mut self, account: Account) -> Result<(), String> {
-        self.accounts.insert(account.uuid, account.clone());
+    async fn save_account(&self, account: Account) -> Result<(), String> {
+        let mut accounts = self.accounts.lock().await;
+        accounts.insert(account.uuid, account.clone());
         Ok(())
     }
 
-    fn get_account(&self, uuid: Uuid) -> Result<Option<Account>, Error> {
-        self.accounts
-            .get(&uuid)
-            .map(|account| Some(account.clone()))
-            .ok_or_else(|| Error)
+    async fn get_account(&self, uuid: Uuid) -> Result<Option<Account>, String> {
+        let accounts = self.accounts.lock().await;
+        Ok(accounts.get(&uuid).cloned())
     }
 
-    fn save_transactions(
+    async fn save_transactions(
         &mut self,
         transactions: Vec<crate::model::transaction::Transaction>,
-    ) -> Result<Vec<Transaction>, Error> {
+    ) -> Result<Vec<Transaction>, String> {
+        let mut accounts = self.accounts.lock().await;
         let mut txs = Vec::new();
         for transaction in transactions {
-            let account = self
-                .accounts
+            let account = accounts
                 .get_mut(&transaction.account_id)
-                .ok_or_else(|| Error)?;
+                .ok_or("Account not found".to_string())?;
             account.balance += transaction.amount;
             account.last_updated_at = transaction.created_at;
             txs.push(transaction);
