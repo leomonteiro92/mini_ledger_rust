@@ -42,6 +42,7 @@ impl Storage for InMemoryStorage {
                 .get_mut(&transaction.account_id)
                 .ok_or_else(|| Error)?;
             account.balance += transaction.amount;
+            account.last_updated_at = transaction.created_at;
             txs.push(transaction);
         }
 
