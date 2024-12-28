@@ -28,6 +28,10 @@ impl AccountService for AccountServiceImpl {
 
     fn get_by_uuid(&self, uuid: Uuid) -> Result<Option<Account>, String> {
         let storage = self.storage.lock().unwrap();
-        storage.get_account(uuid)
+        let result = storage.get_account(uuid);
+        match result {
+            Ok(account) => Ok(account),
+            Err(error) => Err(error.to_string()),
+        }
     }
 }

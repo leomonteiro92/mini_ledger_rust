@@ -4,11 +4,11 @@ use crate::{
     dto::transaction::{
         DepositTransactionRequest, TransferTransactionRequest, WithdrawalTransactionRequest,
     },
-    model::account::Account,
+    model::transaction::Transaction,
     storage::Storage,
 };
 
-use super::{account, types::TransactionService};
+use super::types::TransactionService;
 
 #[derive(Clone)]
 pub struct TransactionServiceImpl {
@@ -22,7 +22,7 @@ impl TransactionServiceImpl {
 }
 
 impl TransactionService for TransactionServiceImpl {
-    fn deposit(&self, request: DepositTransactionRequest) -> Result<(), String> {
+    fn deposit(&self, request: DepositTransactionRequest) -> Result<Vec<Transaction>, String> {
         let transactions = request.to_transactions();
         let mut storage = self.storage.lock().unwrap();
 
@@ -31,30 +31,41 @@ impl TransactionService for TransactionServiceImpl {
             return Err("Account not found".to_string());
         }
 
-        storage.save_transactions(transactions)
+        let response = storage.save_transactions(transactions);
+        match response {
+            Ok(txs) => Ok(txs),
+            Err(_) => Err("Error saving transactions".to_string()),
+        }
     }
 
-    fn withdrawal(&self, request: WithdrawalTransactionRequest) -> Result<(), String> {
+    fn withdrawal(
+        &self,
+        request: WithdrawalTransactionRequest,
+    ) -> Result<Vec<Transaction>, String> {
         let transactions = request.to_transactions();
         let mut storage = self.storage.lock().unwrap();
 
-        let account = storage.get_account(request.account_id.clone());
-        match account {
-            Ok(unwrapped_account) => {
-                if unwrapped_account.is_none() {
-                    return Err("Account not found".to_string());
+        let result = storage.get_account(request.account_id.clone());
+        match result {
+            Ok(account) => match account {
+                Some(account) => {
+                    if account.balance < request.amount {
+                        return Err("Insufficient balance".to_string());
+                    }
                 }
-                if unwrapped_account.unwrap().balance < request.amount {
-                    return Err("Insufficient balance".to_string());
-                }
-            }
-            Err(e) => return Err(e),
+                None => return Err("Account not found".to_string()),
+            },
+            Err(_) => return Err("Error finding account".to_string()),
         }
 
-        storage.save_transactions(transactions)
+        let response = storage.save_transactions(transactions);
+        match response {
+            Ok(txs) => Ok(txs),
+            Err(_) => Err("Error saving transactions".to_string()),
+        }
     }
 
-    fn transfer(&self, request: TransferTransactionRequest) -> Result<(), String> {
+    fn transfer(&self, request: TransferTransactionRequest) -> Result<Vec<Transaction>, String> {
         let transactions = request.to_transactions();
         let mut storage = self.storage.lock().unwrap();
 
@@ -72,6 +83,10 @@ impl TransactionService for TransactionServiceImpl {
             return Err("Destination account not found".to_string());
         }
 
-        storage.save_transactions(transactions)
+        let response = storage.save_transactions(transactions);
+        match response {
+            Ok(txs) => Ok(txs),
+            Err(_) => Err("Error saving transactions".to_string()),
+        }
     }
 }

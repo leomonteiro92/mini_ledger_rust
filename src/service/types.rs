@@ -4,7 +4,7 @@ use crate::{
     dto::transaction::{
         DepositTransactionRequest, TransferTransactionRequest, WithdrawalTransactionRequest,
     },
-    model::account::Account,
+    model::{account::Account, transaction::Transaction},
 };
 
 pub trait AccountService: Send + Sync {
@@ -13,7 +13,8 @@ pub trait AccountService: Send + Sync {
 }
 
 pub trait TransactionService: Send + Sync {
-    fn deposit(&self, request: DepositTransactionRequest) -> Result<(), String>;
-    fn withdrawal(&self, request: WithdrawalTransactionRequest) -> Result<(), String>;
-    fn transfer(&self, request: TransferTransactionRequest) -> Result<(), String>;
+    fn deposit(&self, request: DepositTransactionRequest) -> Result<Vec<Transaction>, String>;
+    fn withdrawal(&self, request: WithdrawalTransactionRequest)
+        -> Result<Vec<Transaction>, String>;
+    fn transfer(&self, request: TransferTransactionRequest) -> Result<Vec<Transaction>, String>;
 }

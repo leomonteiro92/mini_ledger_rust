@@ -1,8 +1,8 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, fmt::Error};
 
 use uuid::Uuid;
 
-use crate::model::account::Account;
+use crate::model::{account::Account, transaction::Transaction};
 
 use super::Storage;
 
@@ -24,24 +24,27 @@ impl Storage for InMemoryStorage {
         Ok(())
     }
 
-    fn get_account(&self, uuid: Uuid) -> Result<Option<Account>, String> {
+    fn get_account(&self, uuid: Uuid) -> Result<Option<Account>, Error> {
         self.accounts
             .get(&uuid)
             .map(|account| Some(account.clone()))
-            .ok_or_else(|| "Account not found".to_string())
+            .ok_or_else(|| Error)
     }
 
     fn save_transactions(
         &mut self,
         transactions: Vec<crate::model::transaction::Transaction>,
-    ) -> Result<(), String> {
+    ) -> Result<Vec<Transaction>, Error> {
+        let mut txs = Vec::new();
         for transaction in transactions {
             let account = self
                 .accounts
                 .get_mut(&transaction.account_id)
-                .ok_or_else(|| "Account not found".to_string())?;
+                .ok_or_else(|| Error)?;
             account.balance += transaction.amount;
+            txs.push(transaction);
         }
-        Ok(())
+
+        Ok(txs)
     }
 }
