@@ -12,6 +12,7 @@ pub struct Account {
     pub created_at: DateTime<Utc>,
     #[serde(serialize_with = "serialize_datetime")]
     pub last_updated_at: DateTime<Utc>,
+    pub version: Uuid,
 }
 
 impl Account {
@@ -22,6 +23,7 @@ impl Account {
             balance: BigDecimal::zero().with_scale(2),
             created_at: chrono::Utc::now(),
             last_updated_at: chrono::Utc::now(),
+            version: Uuid::new_v4(),
         }
     }
 
@@ -31,6 +33,7 @@ impl Account {
         balance: BigDecimal,
         created_at_in_nanos: i64,
         last_updated_at_in_nanos: i64,
+        version: Uuid,
     ) -> Self {
         Account {
             uuid,
@@ -38,6 +41,7 @@ impl Account {
             balance,
             created_at: chrono::Utc.timestamp_nanos(created_at_in_nanos),
             last_updated_at: chrono::Utc.timestamp_nanos(last_updated_at_in_nanos),
+            version,
         }
     }
 }

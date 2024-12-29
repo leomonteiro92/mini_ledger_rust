@@ -1,21 +1,30 @@
+use bigdecimal::BigDecimal;
 use chrono::{DateTime, Utc};
 use serde::Serialize;
 use uuid::Uuid;
 
+use super::account::Account;
+
 #[derive(Debug, Clone, Serialize)]
 pub struct Transaction {
     pub id: Uuid,
+    pub idempotency_key: String,
+    pub account_version: Uuid,
     pub account_id: Uuid,
-    pub amount: f64,
+    pub amount: BigDecimal,
     #[serde(serialize_with = "serialize_datetime")]
     pub created_at: DateTime<Utc>,
+    pub currency: String,
 }
 
 impl Transaction {
-    pub fn new(account_id: Uuid, amount: f64) -> Self {
+    pub fn new(account: Account, idempotency_key: String, amount: BigDecimal) -> Self {
         Self {
             id: Uuid::new_v4(),
-            account_id,
+            idempotency_key,
+            account_version: account.version,
+            account_id: account.uuid,
+            currency: account.currency,
             amount,
             created_at: Utc::now(),
         }

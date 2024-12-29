@@ -2,6 +2,10 @@ use cassandra_cpp::Session;
 
 pub async fn bootstrap(session: &Session) -> Result<(), String> {
     session
+        .execute("DROP KEYSPACE IF EXISTS mini_ledger;")
+        .await
+        .unwrap();
+    session
         .execute(
             r#"
         CREATE KEYSPACE IF NOT EXISTS mini_ledger WITH REPLICATION = 
@@ -14,7 +18,7 @@ pub async fn bootstrap(session: &Session) -> Result<(), String> {
         .execute(
             r#"
         CREATE TABLE IF NOT EXISTS mini_ledger.accounts (
-            uuid TEXT PRIMARY KEY,
+            id UUID PRIMARY KEY,
             currency TEXT,
             balance DECIMAL,
             created_at_in_nanos BIGINT,
@@ -26,7 +30,17 @@ pub async fn bootstrap(session: &Session) -> Result<(), String> {
         .await
         .unwrap();
     session
-        .execute("TRUNCATE mini_ledger.accounts")
+        .execute(
+            r#"CREATE TABLE IF NOT EXISTS mini_ledger.transactions_by_account_time_range (
+                idempotency_key TEXT,
+                id UUID,
+                account_id UUID,
+                amount DECIMAL,
+                created_at_in_nanos BIGINT,
+                currency TEXT,
+                PRIMARY KEY (account_id, created_at_in_nanos)
+            ) WITH CLUSTERING ORDER BY (created_at_in_nanos DESC);"#,
+        )
         .await
         .unwrap();
     // ...
