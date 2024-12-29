@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use async_trait::async_trait;
+use bigdecimal::{BigDecimal, FromPrimitive};
 use tokio::sync::Mutex;
 use uuid::Uuid;
 
@@ -43,7 +44,8 @@ impl Storage for InMemoryStorage {
             let account = accounts
                 .get_mut(&transaction.account_id)
                 .ok_or("Account not found".to_string())?;
-            account.balance += transaction.amount;
+            let amount_to_add = BigDecimal::from_f64(transaction.amount).unwrap();
+            account.balance += amount_to_add;
             account.last_updated_at = transaction.created_at;
             txs.push(transaction);
         }

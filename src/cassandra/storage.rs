@@ -1,11 +1,13 @@
 use std::sync::Arc;
 
 use async_trait::async_trait;
+use bigdecimal::BigDecimal;
 use cassandra_cpp::{AsRustType, BindRustType, Session};
 use uuid::Uuid;
 
 use crate::{model::account::Account, storage::Storage};
 
+#[derive(Debug, Clone)]
 pub struct CassandraStorage {
     session: Arc<Session>,
 }
@@ -27,7 +29,8 @@ impl Storage for CassandraStorage {
         );
         stmt.bind(0, account.uuid).unwrap();
         stmt.bind(1, account.currency.as_str()).unwrap();
-        stmt.bind(2, account.balance).unwrap();
+        stmt.bind(2, account.balance.with_scale(2).to_string().as_str())
+            .unwrap();
         stmt.bind(3, account.created_at.timestamp_nanos_opt().unwrap())
             .unwrap();
         stmt.bind(4, account.last_updated_at.timestamp_nanos_opt().unwrap())
@@ -49,13 +52,17 @@ impl Storage for CassandraStorage {
 
         match rows.first_row() {
             None => return Ok(None),
-            Some(row) => Ok(Some(Account::from_storage(
-                row.get_by_name("uuid").unwrap(),
-                row.get_by_name("currency").unwrap(),
-                row.get_by_name("balance").unwrap(),
-                row.get_by_name("created_at_in_nanos").unwrap(),
-                row.get_by_name("last_updated_at_in_nanos").unwrap(),
-            ))),
+            Some(row) => {
+                let balance_as_str: String = row.get_by_name("balance").unwrap();
+                let balance = balance_as_str.parse::<BigDecimal>().unwrap().with_scale(2);
+                Ok(Some(Account::from_storage(
+                    row.get_by_name("uuid").unwrap(),
+                    row.get_by_name("currency").unwrap(),
+                    balance,
+                    row.get_by_name("created_at_in_nanos").unwrap(),
+                    row.get_by_name("last_updated_at_in_nanos").unwrap(),
+                )))
+            }
         }
     }
 

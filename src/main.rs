@@ -1,11 +1,13 @@
 use actix_web::{web, App, HttpServer};
+use cassandra::{
+    bootstrap::bootstrap, config::CassandraConfig, connection::connect, storage::CassandraStorage,
+};
 use handler::AppState;
 use service::{transaction::TransactionServiceImpl, AccountServiceImpl};
 use std::{env, sync::Arc};
-use storage::InMemoryStorage;
 use tokio::sync::Mutex;
 
-// mod cassandra;
+mod cassandra;
 mod dto;
 mod handler;
 mod model;
@@ -17,7 +19,18 @@ async fn main() -> std::io::Result<()> {
     env::set_var("RUST_LOG", "debug");
     env_logger::init();
 
-    let storage = Arc::new(Mutex::new(InMemoryStorage::new()));
+    let config = CassandraConfig {
+        contact_points: "127.0.0.1".to_owned(),
+    };
+    let session = connect(config).await.unwrap_or_else(|err| {
+        panic!("Failed to connect to Cassandra: {}", err);
+    });
+    bootstrap(&session).await.unwrap_or_else(|err| {
+        panic!("Failed to bootstrap Cassandra: {}", err);
+    });
+    let storage = Arc::new(Mutex::new(CassandraStorage::new(Arc::new(session))));
+
+    // let storage = Arc::new(Mutex::new(InMemoryStorage::new()));
     let account_svc = Arc::new(AccountServiceImpl::new(storage.clone()));
     let transaction_svc = Arc::new(TransactionServiceImpl::new(storage.clone()));
     let state = AppState::new(account_svc, transaction_svc);

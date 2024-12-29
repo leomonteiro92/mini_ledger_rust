@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use async_trait::async_trait;
+use bigdecimal::{BigDecimal, FromPrimitive};
 use tokio::sync::Mutex;
 
 use crate::{
@@ -50,7 +51,8 @@ impl<S: Storage> TransactionService for TransactionServiceImpl<S> {
             .get_account(request.account_id.clone())
             .await?
             .ok_or("Account not found".to_string())?;
-        if account.balance < request.amount {
+        let requested_amount = BigDecimal::from_f64(request.amount).unwrap();
+        if account.balance < requested_amount {
             return Err("Insufficient balance".to_string());
         }
 
@@ -70,7 +72,8 @@ impl<S: Storage> TransactionService for TransactionServiceImpl<S> {
             .await?
             .ok_or("Source account not found".to_string())?;
 
-        if account_from.balance < request.amount {
+        let requested_amount = BigDecimal::from_f64(request.amount).unwrap();
+        if account_from.balance < requested_amount {
             return Err("Insufficient balance".to_string());
         }
 

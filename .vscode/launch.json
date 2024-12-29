@@ -59,6 +59,15 @@
             },
             "args": [],
             "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "Attach to process",
+            "type": "lldb",
+            "request": "attach",
+            "pid": "${command:pickProcess}",
+            "sourceLanguages": [
+                "rust"
+            ]
         }
     ]
 }

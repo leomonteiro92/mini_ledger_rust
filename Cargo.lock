@@ -301,6 +301,7 @@ dependencies = [
  "num-bigint",
  "num-integer",
  "num-traits",
+ "serde",
 ]
 
 [[package]]
@@ -982,6 +983,7 @@ version = "0.1.0"
 dependencies = [
  "actix-web",
  "async-trait",
+ "bigdecimal",
  "cassandra-cpp",
  "chrono",
  "env_logger",

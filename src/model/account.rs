@@ -1,3 +1,4 @@
+use bigdecimal::{BigDecimal, Zero};
 use chrono::{self, DateTime, TimeZone, Utc};
 use serde::{self, Serialize};
 use uuid::Uuid;
@@ -6,7 +7,7 @@ use uuid::Uuid;
 pub struct Account {
     pub uuid: Uuid,
     pub currency: String,
-    pub balance: f64,
+    pub balance: BigDecimal,
     #[serde(serialize_with = "serialize_datetime")]
     pub created_at: DateTime<Utc>,
     #[serde(serialize_with = "serialize_datetime")]
@@ -18,7 +19,7 @@ impl Account {
         Account {
             uuid,
             currency: currency.clone(),
-            balance: 0.0,
+            balance: BigDecimal::zero().with_scale(2),
             created_at: chrono::Utc::now(),
             last_updated_at: chrono::Utc::now(),
         }
@@ -27,7 +28,7 @@ impl Account {
     pub fn from_storage(
         uuid: Uuid,
         currency: String,
-        balance: f64,
+        balance: BigDecimal,
         created_at_in_nanos: i64,
         last_updated_at_in_nanos: i64,
     ) -> Self {
