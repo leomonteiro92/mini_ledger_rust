@@ -1,6 +1,6 @@
 use actix_web::{web, App, HttpServer};
 use cassandra::{
-    bootstrap::bootstrap, config::CassandraConfig, connection::connect, storage::CassandraStorage,
+    config::CassandraConfig, connection::connect, migrate::migrate, storage::CassandraStorage,
 };
 use handler::AppState;
 use service::{transaction::TransactionServiceImpl, AccountServiceImpl};
@@ -25,7 +25,7 @@ async fn main() -> std::io::Result<()> {
     let session = connect(config).await.unwrap_or_else(|err| {
         panic!("Failed to connect to Cassandra: {}", err);
     });
-    bootstrap(&session).await.unwrap_or_else(|err| {
+    migrate(&session).await.unwrap_or_else(|err| {
         panic!("Failed to bootstrap Cassandra: {}", err);
     });
     let storage = Arc::new(Mutex::new(CassandraStorage::new(Arc::new(session))));

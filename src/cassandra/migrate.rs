@@ -1,6 +1,6 @@
 use cassandra_cpp::Session;
 
-pub async fn bootstrap(session: &Session) -> Result<(), String> {
+pub async fn migrate(session: &Session) -> Result<(), String> {
     session
         .execute("DROP KEYSPACE IF EXISTS mini_ledger;")
         .await
