@@ -1,4 +1,4 @@
-use chrono::{self, DateTime, Utc};
+use chrono::{self, DateTime, TimeZone, Utc};
 use serde::{self, Serialize};
 use uuid::Uuid;
 
@@ -21,6 +21,22 @@ impl Account {
             balance: 0.0,
             created_at: chrono::Utc::now(),
             last_updated_at: chrono::Utc::now(),
+        }
+    }
+
+    pub fn from_storage(
+        uuid: Uuid,
+        currency: String,
+        balance: f64,
+        created_at_in_nanos: i64,
+        last_updated_at_in_nanos: i64,
+    ) -> Self {
+        Account {
+            uuid,
+            currency: currency.to_string(),
+            balance,
+            created_at: chrono::Utc.timestamp_nanos(created_at_in_nanos),
+            last_updated_at: chrono::Utc.timestamp_nanos(last_updated_at_in_nanos),
         }
     }
 }

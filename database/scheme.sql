@@ -1,7 +1,7 @@
 CREATE KEYSPACE mini_ledger WITH REPLICATION = 
     { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };
 
-CREATE TABLE IF NOT EXISTS mini_ledger.accounts (
+CREATE TABLE mini_ledger.accounts (
     uuid UUID PRIMARY KEY,
     currency TEXT,
     balance DECIMAL,
