@@ -28,7 +28,8 @@ jobs:
           libclang-dev \
           cmake \
           unzip \
-          curl
+          curl \
+          libuv1-dev
 
     - name: Build Cassandra Driver
       run: |
