@@ -16,6 +16,30 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          build-essential \
+          libssl-dev \
+          libsasl2-dev \
+          libffi-dev \
+          libclang-dev \
+          cmake \
+          unzip \
+          curl
+
+    - name: Build Cassandra Driver
+      run: |
+        git clone https://github.com/datastax/cpp-driver.git \
+          && cd cpp-driver \
+          && mkdir build && cd build \
+          && cmake .. \
+          && make \
+          && make install \
+          && ldconfig
+
     - name: Build
       run: cargo build --verbose
     - name: Run tests
