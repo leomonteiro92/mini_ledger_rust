@@ -5,7 +5,7 @@ use uuid::Uuid;
 
 use crate::utils::serialize_datetime;
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Clone, PartialEq)]
 pub struct Account {
     pub uuid: Uuid,
     pub currency: String,
