@@ -1,3 +1,5 @@
+[![Rust](https://github.com/leomonteiro92/mini_ledger_rust/actions/workflows/rust.yml/badge.svg)](https://github.com/leomonteiro92/mini_ledger_rust/actions/workflows/rust.yml)
+
 <p align="center">
   <img src="https://rustacean.net/assets/rustacean-flat-happy.svg" alt="Ferris the crab" width="180">
 </p>

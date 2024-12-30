@@ -11,8 +11,6 @@ members = [
 
 [dependencies]
 actix-web = "4.0"
-async-trait = "0.1.83"
-cassandra-cpp = "3.0.2"
 bigdecimal = { version = "0.4.7", features = ["serde"] }
 chrono = "0.4"
 env_logger = "0.10.0"
