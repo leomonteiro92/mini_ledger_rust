@@ -26,6 +26,7 @@ impl<S: Storage> UseCase<Uuid, Option<Account>> for GetAccountByUuidUseCase<S> {
     }
 }
 
+#[cfg(test)]
 mod tests {
 
     use crate::storage::InMemoryStorage;
