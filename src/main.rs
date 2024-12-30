@@ -22,7 +22,7 @@ async fn main() -> std::io::Result<()> {
     cassandra_storage::migrate(&session)
         .await
         .unwrap_or_else(|err| {
-            panic!("Failed to bootstrap Cassandra: {}", err);
+            panic!("Failed to create tables: {}", err);
         });
     let storage = Arc::new(Mutex::new(cassandra_storage::CassandraStorage::new(
         Arc::new(session),

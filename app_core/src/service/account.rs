@@ -4,7 +4,10 @@ use async_trait::async_trait;
 use tokio::sync::Mutex;
 use uuid::Uuid;
 
-use crate::{model::Account, storage::Storage};
+use crate::{
+    model::Account,
+    storage::{self, Storage},
+};
 
 use super::AccountService;
 
@@ -29,10 +32,7 @@ impl<S: Storage> AccountService for AccountServiceImpl<S> {
 
     async fn get_by_uuid(&self, uuid: Uuid) -> Result<Option<Account>, String> {
         let storage = self.storage.lock().await;
-        let result = storage.get_account(uuid).await;
-        match result {
-            Ok(account) => Ok(account),
-            Err(e) => Err(e),
-        }
+        let result = storage.get_account(uuid).await?;
+        Ok(result)
     }
 }

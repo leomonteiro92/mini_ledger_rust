@@ -16,7 +16,7 @@ pub async fn create_deposit(
         .await;
     result
         .map(|txs| HttpResponse::Ok().json(txs))
-        .unwrap_or_else(|error| HttpResponse::InternalServerError().body(error))
+        .unwrap_or_else(|error| HttpResponse::BadRequest().body(error))
 }
 
 #[post("/withdrawals")]
@@ -30,7 +30,7 @@ pub async fn create_withdrawal(
         .await;
     result
         .map(|txs| HttpResponse::Ok().json(txs))
-        .unwrap_or_else(|error| HttpResponse::InternalServerError().body(error))
+        .unwrap_or_else(|error| HttpResponse::BadRequest().body(error))
 }
 
 #[post("/transfers")]
@@ -44,5 +44,5 @@ pub async fn create_transfer(
         .await;
     result
         .map(|txs| HttpResponse::Ok().json(txs))
-        .unwrap_or_else(|error| HttpResponse::InternalServerError().body(error))
+        .unwrap_or_else(|error| HttpResponse::BadRequest().body(error))
 }

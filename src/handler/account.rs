@@ -13,7 +13,7 @@ pub async fn create_account(
     let created_account_result = state.account_service.create_one(account).await;
     created_account_result
         .map(|created_account| HttpResponse::Ok().json(created_account))
-        .unwrap_or_else(|error| HttpResponse::InternalServerError().body(error))
+        .unwrap_or_else(|error| HttpResponse::BadRequest().body(error))
 }
 
 #[get("/accounts/{param_uuid}")]

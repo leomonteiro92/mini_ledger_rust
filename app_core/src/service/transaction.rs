@@ -93,12 +93,12 @@ impl<S: Storage> TransactionService for TransactionServiceImpl<S> {
             ..to
         };
 
-        let response = storage
+        let transactions = storage
             .save_transactions(
                 vec![from_tx.clone(), to_tx.clone()],
                 vec![updated_from, updated_to],
             )
             .await?;
-        Ok(response)
+        Ok(transactions)
     }
 }
