@@ -38,7 +38,7 @@ jobs:
           cd /tmp/cpp-driver/build && \
           cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local && \
           make -j$(nproc) && \
-          make install && \
+          sudo make install && \
           ldconfig && \
           rm -rf /tmp/cpp-driver
 
