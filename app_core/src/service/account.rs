@@ -4,9 +4,9 @@ use async_trait::async_trait;
 use tokio::sync::Mutex;
 use uuid::Uuid;
 
-use crate::{model::Account, storage::types::Storage};
+use crate::{model::Account, storage::Storage};
 
-use super::types::AccountService;
+use super::AccountService;
 
 #[derive(Debug, Clone)]
 pub struct AccountServiceImpl<S: Storage> {

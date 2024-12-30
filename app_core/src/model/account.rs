@@ -3,6 +3,8 @@ use chrono::{self, DateTime, TimeZone, Utc};
 use serde::{self, Serialize};
 use uuid::Uuid;
 
+use crate::utils::serialize_datetime;
+
 #[derive(Debug, Serialize, Clone)]
 pub struct Account {
     pub uuid: Uuid,
@@ -44,12 +46,4 @@ impl Account {
             version,
         }
     }
-}
-
-fn serialize_datetime<S>(dt: &DateTime<Utc>, serializer: S) -> Result<S::Ok, S::Error>
-where
-    S: serde::Serializer,
-{
-    let str = dt.to_rfc3339();
-    serializer.serialize_str(&str)
 }

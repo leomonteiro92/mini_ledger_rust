@@ -9,7 +9,7 @@ use crate::{
     storage::Storage,
 };
 
-use super::types::TransactionService;
+use super::TransactionService;
 
 #[derive(Debug, Clone)]
 pub struct TransactionServiceImpl<S: Storage> {

@@ -5,6 +5,8 @@ use uuid::Uuid;
 
 use super::account::Account;
 
+use crate::utils::serialize_datetime;
+
 #[derive(Debug, Clone, Serialize)]
 pub struct Transaction {
     pub id: Uuid,
@@ -29,12 +31,4 @@ impl Transaction {
             created_at: Utc::now(),
         }
     }
-}
-
-fn serialize_datetime<S>(dt: &DateTime<Utc>, serializer: S) -> Result<S::Ok, S::Error>
-where
-    S: serde::Serializer,
-{
-    let str = dt.to_rfc3339();
-    serializer.serialize_str(&str)
 }
