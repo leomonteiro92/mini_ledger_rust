@@ -1,0 +1,270 @@
+openapi: 3.0.3
+info:
+  title: Accounts API
+  description: API to manage accounts, deposits, withdrawals, and transfers.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+paths:
+  /accounts:
+    post:
+      summary: Create an account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                currency:
+                  type: string
+                  example: BRL
+                uuid:
+                  type: string
+                  format: uuid
+                  example: 2348a36a-8444-45a3-a130-669144a29793
+      responses:
+        '200':
+          description: Account created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  balance:
+                    type: string
+                    example: "0.00"
+                  created_at:
+                    type: string
+                    format: date-time
+                    example: "2024-12-30T01:18:12.209270+00:00"
+                  currency:
+                    type: string
+                    example: BRL
+                  last_updated_at:
+                    type: string
+                    format: date-time
+                    example: "2024-12-30T01:18:12.209280+00:00"
+                  uuid:
+                    type: string
+                    format: uuid
+                    example: 2348a36a-8444-45a3-a130-669144a29793
+                  version:
+                    type: string
+                    format: uuid
+                    example: 89092a14-ce08-48db-90b6-54bd39cd432a
+
+  /deposits:
+    post:
+      summary: Deposit money into an account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: number
+                  example: 199.9
+                account_id:
+                  type: string
+                  format: uuid
+                  example: 2348a36a-8444-45a3-a130-669144a29793
+                idempotency_key:
+                  type: string
+                  example: 123456
+      responses:
+        '200':
+          description: Money deposited successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    account_id:
+                      type: string
+                      format: uuid
+                      example: 2348a36a-8444-45a3-a130-669144a29793
+                    account_version:
+                      type: string
+                      format: uuid
+                      example: 9503b90d-2596-46d4-b3cd-10611530186a
+                    amount:
+                      type: string
+                      example: "199.900000000000005684341886080801486968994140625"
+                    created_at:
+                      type: string
+                      format: date-time
+                      example: "2024-12-30T01:18:50.254488+00:00"
+                    currency:
+                      type: string
+                      example: BRL
+                    id:
+                      type: string
+                      format: uuid
+                      example: 62566da0-b393-4bb0-abbd-c9f24676f019
+                    idempotency_key:
+                      type: string
+                      example: 123456
+
+  /withdrawals:
+    post:
+      summary: Withdraw money from an account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: number
+                  example: 99.8
+                account_id:
+                  type: string
+                  format: uuid
+                  example: 2348a36a-8444-45a3-a130-669144a29793
+                idempotency_key:
+                  type: string
+                  example: 123456
+      responses:
+        '200':
+          description: Money withdrawn successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    account_id:
+                      type: string
+                      format: uuid
+                      example: 2348a36a-8444-45a3-a130-669144a29793
+                    account_version:
+                      type: string
+                      format: uuid
+                      example: 06735128-7753-4df1-a3a9-c0c2eb0f6fe8
+                    amount:
+                      type: string
+                      example: "-99.7999999999999971578290569595992565155029296875"
+                    created_at:
+                      type: string
+                      format: date-time
+                      example: "2024-12-30T01:19:13.561358+00:00"
+                    currency:
+                      type: string
+                      example: BRL
+                    id:
+                      type: string
+                      format: uuid
+                      example: 958e7617-0e6d-4dff-a021-357b556b5de0
+                    idempotency_key:
+                      type: string
+                      example: 123456
+
+  /transfers:
+    post:
+      summary: Transfer money between accounts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: number
+                  example: 99.8
+                from_account_id:
+                  type: string
+                  format: uuid
+                  example: 2348a36a-8444-45a3-a130-669144a29793
+                to_account_id:
+                  type: string
+                  format: uuid
+                  example: 2348a36a-8444-45a3-a130-669144a29793
+                idempotency_key:
+                  type: string
+                  example: 123456
+      responses:
+        '200':
+          description: Money transferred successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    account_id:
+                      type: string
+                      format: uuid
+                      example: 2348a36a-8444-45a3-a130-669144a29793
+                    account_version:
+                      type: string
+                      format: uuid
+                      example: 46769d2a-b7bf-4632-a477-aff466ecd566
+                    amount:
+                      type: string
+                      example: "-99.7999999999999971578290569595992565155029296875"
+                    created_at:
+                      type: string
+                      format: date-time
+                      example: "2024-12-30T01:19:30.811592+00:00"
+                    currency:
+                      type: string
+                      example: BRL
+                    id:
+                      type: string
+                      format: uuid
+                      example: c2b951e0-4eb8-40cc-b039-b117a22b6a2b
+                    idempotency_key:
+                      type: string
+                      example: 123456
+
+  /accounts/{account_id}:
+    get:
+      summary: Retrieve account details
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          example: 2348a36a-8444-45a3-a130-669144a29793
+      responses:
+        '200':
+          description: Account details retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  balance:
+                    type: string
+                    example: "199.89"
+                  created_at:
+                    type: string
+                    format: date-time
+                    example: "2024-12-30T01:18:12.209270+00:00"
+                  currency:
+                    type: string
+                    example: BRL
+                  last_updated_at:
+                    type: string
+                    format: date-time
+                    example: "2024-12-30T01:18:12.209280+00:00"
+                  uuid:
+                    type: string
+                    format: uuid
+                    example: 2348a36a-8444-45a3-a130-669144a29793
+                  version:
+                    type: string
+                    format: uuid
+                    example: dd378a4e-d9fd-4598-81f1-ee8d6d3ea3e2
