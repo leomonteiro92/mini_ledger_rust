@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://rustacean.net/assets/rustacean-flat-happy.svg" alt="Ferris the crab" width="180">
+</p>
+
 # Rust Mini Ledger
 This project is a Rust-based API for managing financial operations, including account creation, deposits, withdrawals, and transfers. It supports querying account details and balances while ensuring idempotent and accurate operations. The API uses Apache Cassandra as the storage backend for its high scalability and fault tolerance.
 
