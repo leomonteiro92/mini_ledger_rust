@@ -19,6 +19,7 @@ impl InMemoryStorage {
         }
     }
 
+    #[cfg(test)]
     pub async fn set_accounts(&self, accounts: HashMap<Uuid, Account>) {
         let mut storage = self.accounts.lock().await;
         *storage = accounts;
