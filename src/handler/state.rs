@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use app_core::{
+use base::{
     dto::transaction::{DepositTransactionDTO, TransferTransactionDTO, WithdrawalTransactionDTO},
     model::{Account, Transaction},
     use_case::UseCase,

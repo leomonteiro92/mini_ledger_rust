@@ -1,5 +1,5 @@
 use actix_web::{post, web, HttpResponse, Responder};
-use app_core::dto::transaction::{
+use base::dto::transaction::{
     DepositTransactionDTO, TransferTransactionDTO, WithdrawalTransactionDTO,
 };
 

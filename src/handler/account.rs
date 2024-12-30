@@ -1,5 +1,5 @@
 use actix_web::{get, post, web, HttpResponse, Responder};
-use app_core::dto::account::AccountCreationDTO;
+use base::dto::account::AccountCreationDTO;
 use uuid::Uuid;
 
 use super::state::AppState;

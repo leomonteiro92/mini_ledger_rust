@@ -1,5 +1,5 @@
 use actix_web::{web, App, HttpServer};
-use app_core::use_case::{
+use base::use_case::{
     CreateAccountUseCase, DepositUseCase, GetAccountByUuidUseCase, TransferUseCase,
     WithdrawalUseCase,
 };

@@ -253,19 +253,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "app_core"
-version = "0.1.0"
-dependencies = [
- "async-trait",
- "bigdecimal",
- "chrono",
- "serde",
- "serde_json",
- "tokio",
- "uuid",
-]
-
-[[package]]
 name = "async-trait"
 version = "0.1.83"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -295,6 +282,19 @@ dependencies = [
  "object",
  "rustc-demangle",
  "windows-targets",
+]
+
+[[package]]
+name = "base"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "bigdecimal",
+ "chrono",
+ "serde",
+ "serde_json",
+ "tokio",
+ "uuid",
 ]
 
 [[package]]
@@ -406,8 +406,8 @@ checksum = "6141bc859dd66c4775d89945dda7ca392994d8efacecb756502d7dc32fb7e2cd"
 name = "cassandra_storage"
 version = "0.1.0"
 dependencies = [
- "app_core",
  "async-trait",
+ "base",
  "bigdecimal",
  "cassandra-cpp",
  "chrono",
@@ -1008,8 +1008,8 @@ name = "mini_ledger"
 version = "0.1.0"
 dependencies = [
  "actix-web",
- "app_core",
  "async-trait",
+ "base",
  "bigdecimal",
  "cassandra-cpp",
  "cassandra_storage",

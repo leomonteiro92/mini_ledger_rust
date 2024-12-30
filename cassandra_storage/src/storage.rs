@@ -1,4 +1,4 @@
-use app_core::model::{Account, Transaction};
+use base::model::{Account, Transaction};
 use std::sync::Arc;
 
 use async_trait::async_trait;
@@ -18,7 +18,7 @@ impl CassandraStorage {
 }
 
 #[async_trait]
-impl app_core::storage::Storage for CassandraStorage {
+impl base::storage::Storage for CassandraStorage {
     async fn save_account(&self, account: Account) -> Result<(), String> {
         let mut stmt = self.session.statement(
             r#"INSERT INTO mini_ledger.accounts
