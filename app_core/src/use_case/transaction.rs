@@ -9,28 +9,28 @@ use crate::{
     storage::Storage,
 };
 
-use super::TransactionService;
+use super::UseCase;
 
 #[derive(Debug, Clone)]
-pub struct TransactionServiceImpl<S: Storage> {
+pub struct DepositUseCase<S: Storage> {
     storage: Arc<Mutex<S>>,
 }
 
-impl<S: Storage> TransactionServiceImpl<S> {
+impl<S: Storage> DepositUseCase<S> {
     pub fn new(storage: Arc<Mutex<S>>) -> Self {
-        TransactionServiceImpl { storage }
+        DepositUseCase { storage }
     }
 }
 
 #[async_trait]
-impl<S: Storage> TransactionService for TransactionServiceImpl<S> {
-    async fn deposit(&self, request: DepositTransactionDTO) -> Result<Vec<Transaction>, String> {
+impl<S: Storage> UseCase<DepositTransactionDTO, Vec<Transaction>> for DepositUseCase<S> {
+    async fn execute(&self, input: DepositTransactionDTO) -> Result<Vec<Transaction>, String> {
         let storage = self.storage.lock().await;
         let to = storage
-            .get_account(request.account_id.clone())
+            .get_account(input.account_id.clone())
             .await?
             .ok_or("Account not found".to_string())?;
-        let tx = request.to_transaction(to.clone());
+        let tx = input.to_transaction(to.clone());
         let updated_account = Account {
             balance: to.balance + tx.amount.clone(),
             ..to
@@ -41,19 +41,30 @@ impl<S: Storage> TransactionService for TransactionServiceImpl<S> {
             .await?;
         Ok(result)
     }
+}
 
-    async fn withdrawal(
-        &self,
-        request: WithdrawalTransactionDTO,
-    ) -> Result<Vec<Transaction>, String> {
+#[derive(Debug, Clone)]
+pub struct WithdrawalUseCase<S: Storage> {
+    storage: Arc<Mutex<S>>,
+}
+
+impl<S: Storage> WithdrawalUseCase<S> {
+    pub fn new(storage: Arc<Mutex<S>>) -> Self {
+        WithdrawalUseCase { storage }
+    }
+}
+
+#[async_trait]
+impl<S: Storage> UseCase<WithdrawalTransactionDTO, Vec<Transaction>> for WithdrawalUseCase<S> {
+    async fn execute(&self, input: WithdrawalTransactionDTO) -> Result<Vec<Transaction>, String> {
         let storage = self.storage.lock().await;
         let from = storage
-            .get_account(request.account_id.clone())
+            .get_account(input.account_id.clone())
             .await?
             .ok_or("Account not found".to_string())?;
-        let tx = request.to_transaction(from.clone());
+        let tx = input.to_transaction(from.clone());
 
-        if from.balance < request.amount {
+        if from.balance < input.amount {
             return Err("Insufficient balance".to_string());
         }
 
@@ -67,23 +78,37 @@ impl<S: Storage> TransactionService for TransactionServiceImpl<S> {
             .await?;
         Ok(response)
     }
+}
 
-    async fn transfer(&self, request: TransferTransactionDTO) -> Result<Vec<Transaction>, String> {
+#[derive(Debug, Clone)]
+pub struct TransferUseCase<S: Storage> {
+    storage: Arc<Mutex<S>>,
+}
+
+impl<S: Storage> TransferUseCase<S> {
+    pub fn new(storage: Arc<Mutex<S>>) -> Self {
+        TransferUseCase { storage }
+    }
+}
+
+#[async_trait]
+impl<S: Storage> UseCase<TransferTransactionDTO, Vec<Transaction>> for TransferUseCase<S> {
+    async fn execute(&self, input: TransferTransactionDTO) -> Result<Vec<Transaction>, String> {
         let storage: tokio::sync::MutexGuard<'_, S> = self.storage.lock().await;
         let from = storage
-            .get_account(request.from_account_id.clone())
+            .get_account(input.from_account_id.clone())
             .await?
             .ok_or("Source account not found".to_string())?;
-        if from.balance < request.amount {
+        if from.balance < input.amount {
             return Err("Insufficient balance".to_string());
         }
 
         let to = storage
-            .get_account(request.to_account_id.clone())
+            .get_account(input.to_account_id.clone())
             .await?
             .ok_or("Destination account not found".to_string())?;
 
-        let (from_tx, to_tx) = request.to_transactions(from.clone(), to.clone());
+        let (from_tx, to_tx) = input.to_transactions(from.clone(), to.clone());
         let updated_from = Account {
             balance: from.balance + from_tx.amount.clone(),
             ..from

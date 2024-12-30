@@ -1,5 +1,8 @@
 use actix_web::{web, App, HttpServer};
-use app_core::service::{AccountServiceImpl, TransactionServiceImpl};
+use app_core::use_case::{
+    CreateAccountUseCase, DepositUseCase, GetAccountByUuidUseCase, TransferUseCase,
+    WithdrawalUseCase,
+};
 use handler::AppState;
 use std::{env, sync::Arc};
 use tokio::sync::Mutex;
@@ -29,9 +32,19 @@ async fn main() -> std::io::Result<()> {
     )));
 
     // let storage = Arc::new(Mutex::new(InMemoryStorage::new()));
-    let account_svc = Arc::new(AccountServiceImpl::new(storage.clone()));
-    let transaction_svc = Arc::new(TransactionServiceImpl::new(storage.clone()));
-    let state = AppState::new(account_svc, transaction_svc);
+    let create_account_uc = Arc::new(CreateAccountUseCase::new(storage.clone()));
+    let get_account_by_id_uc = Arc::new(GetAccountByUuidUseCase::new(storage.clone()));
+    let deposit_uc = Arc::new(DepositUseCase::new(storage.clone()));
+    let withdrawal_uc = Arc::new(WithdrawalUseCase::new(storage.clone()));
+    let transfer_uc = Arc::new(TransferUseCase::new(storage.clone()));
+
+    let state = AppState::new(
+        create_account_uc,
+        get_account_by_id_uc,
+        deposit_uc,
+        withdrawal_uc,
+        transfer_uc,
+    );
     let app_state = web::Data::new(state);
     HttpServer::new(move || {
         App::new()

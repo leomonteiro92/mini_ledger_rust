@@ -1,20 +1,34 @@
 use std::sync::Arc;
 
-use app_core::service::{AccountService, TransactionService};
+use app_core::{
+    dto::transaction::{DepositTransactionDTO, TransferTransactionDTO, WithdrawalTransactionDTO},
+    model::{Account, Transaction},
+    use_case::UseCase,
+};
+use uuid::Uuid;
 
 pub struct AppState {
-    pub account_service: Arc<dyn AccountService>,
-    pub transaction_service: Arc<dyn TransactionService>,
+    pub create_account_uc: Arc<dyn UseCase<Account, Account>>,
+    pub get_account_by_id_uc: Arc<dyn UseCase<Uuid, Option<Account>>>,
+    pub deposit_uc: Arc<dyn UseCase<DepositTransactionDTO, Vec<Transaction>>>,
+    pub withdrawal_uc: Arc<dyn UseCase<WithdrawalTransactionDTO, Vec<Transaction>>>,
+    pub transfer_uc: Arc<dyn UseCase<TransferTransactionDTO, Vec<Transaction>>>,
 }
 
 impl AppState {
     pub fn new(
-        account_service: Arc<dyn AccountService>,
-        transaction_service: Arc<dyn TransactionService>,
+        create_account_uc: Arc<dyn UseCase<Account, Account>>,
+        get_account_by_id_uc: Arc<dyn UseCase<Uuid, Option<Account>>>,
+        deposit_uc: Arc<dyn UseCase<DepositTransactionDTO, Vec<Transaction>>>,
+        withdrawal_uc: Arc<dyn UseCase<WithdrawalTransactionDTO, Vec<Transaction>>>,
+        transfer_uc: Arc<dyn UseCase<TransferTransactionDTO, Vec<Transaction>>>,
     ) -> Self {
         AppState {
-            account_service,
-            transaction_service,
+            create_account_uc,
+            get_account_by_id_uc,
+            deposit_uc,
+            withdrawal_uc,
+            transfer_uc,
         }
     }
 }

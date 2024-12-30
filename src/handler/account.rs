@@ -10,7 +10,7 @@ pub async fn create_account(
     account_creation_request: web::Json<AccountCreationDTO>,
 ) -> impl Responder {
     let account = account_creation_request.to_account();
-    let created_account_result = state.account_service.create_one(account).await;
+    let created_account_result = state.create_account_uc.execute(account).await;
     created_account_result
         .map(|created_account| HttpResponse::Ok().json(created_account))
         .unwrap_or_else(|error| HttpResponse::BadRequest().body(error))
@@ -22,8 +22,8 @@ pub async fn get_account_by_id(
     param_uuid: web::Path<Uuid>,
 ) -> impl Responder {
     let account_result = state
-        .account_service
-        .get_by_uuid(param_uuid.into_inner())
+        .get_account_by_id_uc
+        .execute(param_uuid.into_inner())
         .await;
     account_result
         .map(|account| HttpResponse::Ok().json(account))
