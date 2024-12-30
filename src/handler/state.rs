@@ -7,6 +7,7 @@ use base::{
 };
 use uuid::Uuid;
 
+#[derive(Clone)]
 pub struct AppState {
     pub create_account_uc: Arc<dyn UseCase<Account, Account>>,
     pub get_account_by_id_uc: Arc<dyn UseCase<Uuid, Option<Account>>>,
