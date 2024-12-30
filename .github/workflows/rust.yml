@@ -33,13 +33,14 @@ jobs:
 
     - name: Build Cassandra Driver
       run: |
-        git clone https://github.com/datastax/cpp-driver.git \
-          && cd cpp-driver \
-          && mkdir build && cd build \
-          && cmake .. \
-          && make \
-          && make install \
-          && ldconfig
+        git clone --depth 1 https://github.com/datastax/cpp-driver.git /tmp/cpp-driver && \
+          mkdir /tmp/cpp-driver/build && \
+          cd /tmp/cpp-driver/build && \
+          cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local && \
+          make -j$(nproc) && \
+          make install && \
+          ldconfig && \
+          rm -rf /tmp/cpp-driver
 
     - name: Build
       run: cargo build --verbose
