@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::service::types::{AccountService, TransactionService};
+use app_core::service::{AccountService, TransactionService};
 
 pub struct AppState {
     pub account_service: Arc<dyn AccountService>,

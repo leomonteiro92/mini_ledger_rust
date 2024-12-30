@@ -1,11 +1,10 @@
 use std::collections::HashMap;
 
 use async_trait::async_trait;
-use bigdecimal::{BigDecimal, FromPrimitive};
 use tokio::sync::Mutex;
 use uuid::Uuid;
 
-use crate::model::{account::Account, transaction::Transaction};
+use crate::model::{Account, Transaction};
 
 use super::Storage;
 
@@ -35,21 +34,15 @@ impl Storage for InMemoryStorage {
     }
 
     async fn save_transactions(
-        &mut self,
-        transactions: Vec<crate::model::transaction::Transaction>,
+        &self,
+        created_transactions: Vec<Transaction>,
+        updated_accounts: Vec<Account>,
     ) -> Result<Vec<Transaction>, String> {
         let mut accounts = self.accounts.lock().await;
-        let mut txs = Vec::new();
-        for transaction in transactions {
-            let account = accounts
-                .get_mut(&transaction.account_id)
-                .ok_or("Account not found".to_string())?;
-            let amount_to_add = BigDecimal::from_f64(transaction.amount).unwrap();
-            account.balance += amount_to_add;
-            account.last_updated_at = transaction.created_at;
-            txs.push(transaction);
+        for account in updated_accounts {
+            accounts.insert(account.uuid, account.clone());
         }
 
-        Ok(txs)
+        Ok(created_transactions)
     }
 }

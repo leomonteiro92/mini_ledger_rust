@@ -1,14 +1,13 @@
 use actix_web::{get, post, web, HttpResponse, Responder};
+use app_core::dto::account::AccountCreationDTO;
 use uuid::Uuid;
-
-use crate::dto::account::AccountCreationRequest;
 
 use super::state::AppState;
 
 #[post("/accounts")]
 pub async fn create_account(
     state: web::Data<AppState>,
-    account_creation_request: web::Json<AccountCreationRequest>,
+    account_creation_request: web::Json<AccountCreationDTO>,
 ) -> impl Responder {
     let account = account_creation_request.to_account();
     let created_account_result = state.account_service.create_one(account).await;

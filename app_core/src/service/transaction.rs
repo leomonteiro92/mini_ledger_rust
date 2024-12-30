@@ -4,10 +4,8 @@ use async_trait::async_trait;
 use tokio::sync::Mutex;
 
 use crate::{
-    dto::transaction::{
-        DepositTransactionRequest, TransferTransactionRequest, WithdrawalTransactionRequest,
-    },
-    model::{account::Account, transaction::Transaction},
+    dto::transaction::{DepositTransactionDTO, TransferTransactionDTO, WithdrawalTransactionDTO},
+    model::{Account, Transaction},
     storage::Storage,
 };
 
@@ -26,10 +24,7 @@ impl<S: Storage> TransactionServiceImpl<S> {
 
 #[async_trait]
 impl<S: Storage> TransactionService for TransactionServiceImpl<S> {
-    async fn deposit(
-        &self,
-        request: DepositTransactionRequest,
-    ) -> Result<Vec<Transaction>, String> {
+    async fn deposit(&self, request: DepositTransactionDTO) -> Result<Vec<Transaction>, String> {
         let storage = self.storage.lock().await;
         let to = storage
             .get_account(request.account_id.clone())
@@ -49,7 +44,7 @@ impl<S: Storage> TransactionService for TransactionServiceImpl<S> {
 
     async fn withdrawal(
         &self,
-        request: WithdrawalTransactionRequest,
+        request: WithdrawalTransactionDTO,
     ) -> Result<Vec<Transaction>, String> {
         let storage = self.storage.lock().await;
         let from = storage
@@ -73,10 +68,7 @@ impl<S: Storage> TransactionService for TransactionServiceImpl<S> {
         Ok(response)
     }
 
-    async fn transfer(
-        &self,
-        request: TransferTransactionRequest,
-    ) -> Result<Vec<Transaction>, String> {
+    async fn transfer(&self, request: TransferTransactionDTO) -> Result<Vec<Transaction>, String> {
         let storage: tokio::sync::MutexGuard<'_, S> = self.storage.lock().await;
         let from = storage
             .get_account(request.from_account_id.clone())

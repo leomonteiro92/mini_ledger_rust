@@ -4,7 +4,7 @@ use async_trait::async_trait;
 use tokio::sync::Mutex;
 use uuid::Uuid;
 
-use crate::{model::account::Account, storage::types::Storage};
+use crate::{model::Account, storage::types::Storage};
 
 use super::types::AccountService;
 

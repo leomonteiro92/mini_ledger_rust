@@ -1,11 +1,10 @@
+use app_core::model::{Account, Transaction};
 use std::sync::Arc;
 
 use async_trait::async_trait;
 use bigdecimal::BigDecimal;
 use cassandra_cpp::{AsRustType, BatchType, BindRustType, Session};
 use uuid::Uuid;
-
-use crate::{model::account::Account, storage::Storage};
 
 #[derive(Debug, Clone)]
 pub struct CassandraStorage {
@@ -19,12 +18,12 @@ impl CassandraStorage {
 }
 
 #[async_trait]
-impl Storage for CassandraStorage {
-    async fn save_account(&self, account: crate::model::account::Account) -> Result<(), String> {
+impl app_core::storage::Storage for CassandraStorage {
+    async fn save_account(&self, account: Account) -> Result<(), String> {
         let mut stmt = self.session.statement(
-            r#"INSERT INTO mini_ledger.accounts 
-                (id, currency, balance, created_at_in_nanos, 
-                last_updated_at_in_nanos, version) 
+            r#"INSERT INTO mini_ledger.accounts
+                (id, currency, balance, created_at_in_nanos,
+                last_updated_at_in_nanos, version)
                 VALUES (?, ?, ?, ?, ?, ?) IF NOT EXISTS"#,
         );
         stmt.bind(0, account.uuid).unwrap();
@@ -40,11 +39,8 @@ impl Storage for CassandraStorage {
         Ok(())
     }
 
-    async fn get_account(
-        &self,
-        uuid: uuid::Uuid,
-    ) -> Result<Option<crate::model::account::Account>, String> {
-        let query = r#"SELECT id, currency, balance, created_at_in_nanos, 
+    async fn get_account(&self, uuid: Uuid) -> Result<Option<Account>, String> {
+        let query = r#"SELECT id, currency, balance, created_at_in_nanos,
             last_updated_at_in_nanos, version FROM mini_ledger.accounts WHERE id = ?
             "#;
         let mut stmt = self.session.statement(query);
@@ -70,15 +66,15 @@ impl Storage for CassandraStorage {
 
     async fn save_transactions(
         &self,
-        created_transactions: Vec<crate::model::transaction::Transaction>,
-        updated_accounts: Vec<crate::model::account::Account>,
-    ) -> Result<Vec<crate::model::transaction::Transaction>, String> {
+        created_transactions: Vec<Transaction>,
+        updated_accounts: Vec<Account>,
+    ) -> Result<Vec<Transaction>, String> {
         let mut txs = Vec::new();
         let mut tx_batch = self.session.batch(BatchType::LOGGED);
         for transaction in created_transactions {
             let mut stmt = self.session.statement(
-                r#"INSERT INTO mini_ledger.transactions_by_account_time_range 
-                    (idempotency_key, id, account_id, amount, created_at_in_nanos, currency) 
+                r#"INSERT INTO mini_ledger.transactions_by_account_time_range
+                    (idempotency_key, id, account_id, amount, created_at_in_nanos, currency)
                     VALUES (?, ?, ?, ?, ?, ?) IF NOT EXISTS;"#,
             );
             stmt.bind(0, transaction.idempotency_key.as_str()).unwrap();
@@ -95,7 +91,7 @@ impl Storage for CassandraStorage {
         let mut acc_batch = self.session.batch(BatchType::LOGGED);
         for account in updated_accounts {
             let mut stmt = self.session.statement(
-                r#"UPDATE mini_ledger.accounts 
+                r#"UPDATE mini_ledger.accounts
                     SET balance = ?, last_updated_at_in_nanos = ?, version = ?
                     WHERE id = ? IF version = ?;"#,
             );

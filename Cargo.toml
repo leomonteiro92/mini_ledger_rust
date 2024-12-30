@@ -1,16 +1,25 @@
 [package]
-name = "mini_ledger_rust"
+name = "mini_ledger"
 version = "0.1.0"
 edition = "2021"
+
+[workspace]
+members = [
+    "app_core",
+    "cassandra_storage"
+]
 
 [dependencies]
 actix-web = "4.0"
 async-trait = "0.1.83"
-bigdecimal = { version = "0.4.7", features = ["serde"] }
 cassandra-cpp = "3.0.2"
+bigdecimal = { version = "0.4.7", features = ["serde"] }
 chrono = "0.4"
 env_logger = "0.10.0"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 tokio = { version = "1", features = ["full"] }
 uuid = { version = "1.0", features = ["serde", "v4"] }
+
+app_core = { path = "app_core" }
+cassandra_storage = { path = "cassandra_storage" }
