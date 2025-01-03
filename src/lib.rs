@@ -1,4 +1,3 @@
-#[cfg(feature = "base")]
 pub mod base {
     pub use base::*;
 }
