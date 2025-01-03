@@ -19,6 +19,14 @@ services:
       - cassandra_data:/var/lib/cassandra
     networks:
       - cassandra_network
+  dynamodb-local:
+    command: "-jar DynamoDBLocal.jar -sharedDb -inMemory -port 8000"
+    image: amazon/dynamodb-local:latest
+    container_name: dynamodb_local
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./dynamodb:/data
 
 volumes:
   cassandra_data:

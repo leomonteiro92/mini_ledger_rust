@@ -6,7 +6,8 @@ edition = "2021"
 [workspace]
 members = [
     "base",
-    "cassandra_storage"
+    "cassandra_storage",
+    "dynamo_storage",
 ]
 
 [dependencies]
@@ -21,3 +22,4 @@ uuid = { version = "1.0", features = ["serde", "v4"] }
 
 base = { path = "base" }
 cassandra_storage = { path = "cassandra_storage" }
+dynamo_storage = { path = "dynamo_storage" }
