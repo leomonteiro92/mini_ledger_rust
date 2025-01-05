@@ -26,7 +26,6 @@ dynamo_storage = { path = "dynamo_storage", optional = true }
 
 [features]
 default = ["full"]
-
-cassandra_storage = ["cassandra_storage"]
-dynamo_storage = ["dynamo_storage"]
-full = ["cassandra_storage", "dynamo_storage"]
+cassandra_storage = ["dep:cassandra_storage"]
+dynamo_storage = ["dep:dynamo_storage"]
+full = ["dep:cassandra_storage", "dep:dynamo_storage"]

@@ -9,8 +9,8 @@ pub async fn create_account(
     state: web::Data<AppState>,
     account_creation_request: web::Json<AccountCreationDTO>,
 ) -> impl Responder {
-    let account = account_creation_request.to_account();
-    let created_account_result = state.create_account_uc.execute(account).await;
+    let input = account_creation_request.into_inner();
+    let created_account_result = state.create_account_uc.execute(input).await;
     created_account_result
         .map(|created_account| HttpResponse::Ok().json(created_account))
         .unwrap_or_else(|error| HttpResponse::BadRequest().body(error))

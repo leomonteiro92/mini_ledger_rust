@@ -3,7 +3,9 @@ use std::sync::Arc;
 use async_trait::async_trait;
 use tokio::sync::Mutex;
 
-use crate::{model::Account, storage::Storage, use_case::UseCase};
+use crate::{
+    dto::account::AccountCreationDTO, model::Account, storage::Storage, use_case::UseCase,
+};
 
 #[derive(Debug, Clone)]
 pub struct CreateAccountUseCase<S: Storage> {
@@ -17,16 +19,18 @@ impl<S: Storage> CreateAccountUseCase<S> {
 }
 
 #[async_trait]
-impl<S: Storage> UseCase<Account, Account> for CreateAccountUseCase<S> {
-    async fn execute(&self, input: Account) -> Result<Account, String> {
+impl<S: Storage> UseCase<AccountCreationDTO, Account> for CreateAccountUseCase<S> {
+    async fn execute(&self, input: AccountCreationDTO) -> Result<Account, String> {
         let storage = self.storage.lock().await;
-        storage.save_account(input.clone()).await?;
-        Ok(input)
+        let account: Account = input.into();
+        storage.save_account(account.clone()).await?;
+        Ok(account)
     }
 }
 
 #[cfg(test)]
 mod tests {
+
     use uuid::Uuid;
 
     use crate::storage::InMemoryStorage;
@@ -35,13 +39,22 @@ mod tests {
 
     #[tokio::test]
     async fn test_execute_successful() {
-        let account = Account::new(Uuid::new_v4(), &"BRL".to_string());
+        let test_uuid = Uuid::new_v4();
+        let account = Account::new(test_uuid, &"BRL".to_string());
         let storage = Arc::new(Mutex::new(InMemoryStorage::new()));
         let use_case = CreateAccountUseCase::new(storage.clone());
-        let result = use_case.execute(account.clone()).await;
+        let input = AccountCreationDTO {
+            uuid: test_uuid,
+            currency: "BRL".to_string(),
+        };
+        let result = use_case.execute(input).await;
         assert!(result.is_ok());
-        assert_eq!(result.unwrap(), account);
         let storage = storage.lock().await;
-        assert_eq!(storage.get_account(account.uuid).await, Ok(Some(account)));
+        let stored_account = storage.get_account(test_uuid).await;
+        assert!(stored_account.clone().is_ok());
+        assert!(stored_account.clone().unwrap().is_some());
+        let stored_account: Account = stored_account.unwrap().unwrap();
+        assert_eq!(&stored_account.uuid, &account.uuid);
+        assert_eq!(&stored_account.currency, &account.currency);
     }
 }

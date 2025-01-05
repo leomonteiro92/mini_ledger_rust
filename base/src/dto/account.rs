@@ -1,15 +1,16 @@
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::model::Account;
 
-#[derive(serde::Deserialize, serde::Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct AccountCreationDTO {
-    uuid: Uuid,
-    currency: String,
+    pub uuid: Uuid,
+    pub currency: String,
 }
 
-impl AccountCreationDTO {
-    pub fn to_account(&self) -> Account {
+impl Into<Account> for AccountCreationDTO {
+    fn into(self) -> Account {
         Account::new(self.uuid, &self.currency)
     }
 }
