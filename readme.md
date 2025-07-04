@@ -17,7 +17,7 @@ Currency Support: Operates using a specified currency (e.g., BRL).
 
 ## Technology Stack
  - **Language**: Rust
- - **Database**: Apache Cassandra
+ - **Database**: Apache Cassandra or AWS DynamoDB
  - **Frameworks**: Actix Web, Tokio, Serde
 
 ## Docs
