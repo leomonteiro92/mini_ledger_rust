@@ -69,8 +69,9 @@ impl base::storage::Storage for CassandraStorage {
         created_transactions: Vec<Transaction>,
         updated_accounts: Vec<Account>,
     ) -> Result<Vec<Transaction>, String> {
-        let mut txs = Vec::new();
-        let mut tx_batch = self.session.batch(BatchType::LOGGED);
+        let mut changes = self.session.batch(BatchType::LOGGED);
+
+        let mut txs: Vec<Transaction> = Vec::new();
         for transaction in created_transactions {
             let mut stmt = self.session.statement(
                 r#"INSERT INTO mini_ledger.transactions_by_account_time_range
@@ -85,10 +86,10 @@ impl base::storage::Storage for CassandraStorage {
             stmt.bind(4, transaction.created_at.timestamp_nanos_opt().unwrap())
                 .unwrap();
             stmt.bind(5, transaction.currency.as_str()).unwrap();
-            tx_batch.add_statement(stmt).unwrap();
+            changes.add_statement(stmt).unwrap();
             txs.push(transaction);
         }
-        let mut acc_batch = self.session.batch(BatchType::LOGGED);
+
         for account in updated_accounts {
             let mut stmt = self.session.statement(
                 r#"UPDATE mini_ledger.accounts
@@ -102,10 +103,10 @@ impl base::storage::Storage for CassandraStorage {
             stmt.bind(2, Uuid::new_v4()).unwrap();
             stmt.bind(3, account.uuid).unwrap();
             stmt.bind(4, account.version).unwrap();
-            acc_batch.add_statement(stmt).unwrap();
+            changes.add_statement(stmt).unwrap();
         }
-        tx_batch.execute().await.unwrap();
-        acc_batch.execute().await.unwrap();
+
+        changes.execute().await.unwrap();
         Ok(txs)
     }
 }
