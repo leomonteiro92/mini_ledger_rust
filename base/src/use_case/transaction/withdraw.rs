@@ -29,7 +29,7 @@ impl<S: Storage> UseCase<WithdrawalTransactionDTO, Vec<Transaction>> for Withdra
             .get_account(input.account_id.clone())
             .await?
             .ok_or("Account not found".to_string())?;
-        let tx = input.to_transaction(from.clone());
+        let tx = input.to_transaction(&from);
 
         if from.balance < input.amount {
             return Err("Insufficient balance".to_string());

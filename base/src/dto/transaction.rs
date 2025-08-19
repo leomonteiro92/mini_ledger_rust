@@ -12,8 +12,8 @@ pub struct DepositTransactionDTO {
 }
 
 impl DepositTransactionDTO {
-    pub fn to_transaction(&self, account: Account) -> Transaction {
-        Transaction::new(account, self.idempotency_key.clone(), self.amount.clone())
+    pub fn to_transaction(&self, account: &Account) -> Transaction {
+        Transaction::new(account, &self.idempotency_key, &self.amount)
     }
 }
 
@@ -25,8 +25,9 @@ pub struct WithdrawalTransactionDTO {
 }
 
 impl WithdrawalTransactionDTO {
-    pub fn to_transaction(&self, account: Account) -> Transaction {
-        Transaction::new(account, self.idempotency_key.clone(), -self.amount.clone())
+    pub fn to_transaction(&self, account: &Account) -> Transaction {
+        let negative_amount = -&self.amount;
+        Transaction::new(account, &self.idempotency_key, &negative_amount)
     }
 }
 
@@ -39,10 +40,11 @@ pub struct TransferTransactionDTO {
 }
 
 impl TransferTransactionDTO {
-    pub fn to_transactions(&self, from: Account, to: Account) -> (Transaction, Transaction) {
+    pub fn to_transactions(&self, from: &Account, to: &Account) -> (Transaction, Transaction) {
+        let negative_amount = -&self.amount;
         (
-            Transaction::new(from, self.idempotency_key.clone(), -self.amount.clone()),
-            Transaction::new(to, self.idempotency_key.clone(), self.amount.clone()),
+            Transaction::new(from, &self.idempotency_key, &negative_amount),
+            Transaction::new(to, &self.idempotency_key, &self.amount),
         )
     }
 }

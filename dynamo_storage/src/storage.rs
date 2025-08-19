@@ -25,11 +25,11 @@ impl DynamoStorage {
         DynamoStorage { client }
     }
 
-    fn create_attr_value<T: ToString>(value: T) -> AttributeValue {
+    fn create_attr_value<T: ToString>(value: &T) -> AttributeValue {
         AttributeValue::S(value.to_string())
     }
 
-    fn create_number_attr(value: impl ToString) -> AttributeValue {
+    fn create_number_attr(value: &impl ToString) -> AttributeValue {
         AttributeValue::N(value.to_string())
     }
 
@@ -48,18 +48,18 @@ impl Storage for DynamoStorage {
             .table_name(TABLE_NAME)
             .item("pk", Self::create_attr_value(&pk))
             .item("sk", Self::create_attr_value(&pk))
-            .item("uuid", Self::create_attr_value(account.uuid))
-            .item("currency", Self::create_attr_value(account.currency))
-            .item("balance", Self::create_number_attr(account.balance))
+            .item("uuid", Self::create_attr_value(&account.uuid))
+            .item("currency", Self::create_attr_value(&account.currency))
+            .item("balance", Self::create_number_attr(&account.balance))
             .item(
                 "created_at_in_millis",
-                Self::create_number_attr(account.created_at.timestamp_millis()),
+                Self::create_number_attr(&account.created_at.timestamp_millis()),
             )
             .item(
                 "last_updated_at_in_millis",
-                Self::create_number_attr(account.last_updated_at.timestamp_millis()),
+                Self::create_number_attr(&account.last_updated_at.timestamp_millis()),
             )
-            .item("version", Self::create_attr_value(account.version));
+            .item("version", Self::create_attr_value(&account.version));
 
         request
             .send()
@@ -106,18 +106,18 @@ impl Storage for DynamoStorage {
                 .table_name(TABLE_NAME)
                 .item("pk", AttributeValue::S(pk))
                 .item("sk", AttributeValue::S(sk))
-                .item("account_id", Self::create_attr_value(tx.account_id))
+                .item("account_id", Self::create_attr_value(&tx.account_id))
                 .item(
                     "account_version",
-                    Self::create_attr_value(tx.account_version),
+                    Self::create_attr_value(&tx.account_version),
                 )
-                .item("amount", Self::create_number_attr(tx.amount.with_prec(32)))
+                .item("amount", Self::create_number_attr(&tx.amount.with_prec(32)))
                 .item(
                     "created_at_in_millis",
-                    Self::create_number_attr(tx.created_at.timestamp_millis()),
+                    Self::create_number_attr(&tx.created_at.timestamp_millis()),
                 )
                 .item("currency", Self::create_attr_value(&tx.currency))
-                .item("id", Self::create_attr_value(tx.id))
+                .item("id", Self::create_attr_value(&tx.id))
                 .item(
                     "idempotency_key",
                     Self::create_attr_value(&tx.idempotency_key),
@@ -141,10 +141,10 @@ impl Storage for DynamoStorage {
                     ":balance",
                     Self::create_number_attr(&acc.balance.with_prec(32)),
                 )
-                .expression_attribute_values(":newVersion", Self::create_attr_value(new_version))
+                .expression_attribute_values(":newVersion", Self::create_attr_value(&new_version))
                 .expression_attribute_values(
                     ":expectedVersion",
-                    Self::create_attr_value(acc.version),
+                    Self::create_attr_value(&acc.version),
                 )
                 .build()
                 .map_err(|e| format!("Failed to build update expression: {:?}", e))?;

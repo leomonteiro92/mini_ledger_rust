@@ -20,14 +20,14 @@ pub struct Transaction {
 }
 
 impl Transaction {
-    pub fn new(account: Account, idempotency_key: String, amount: BigDecimal) -> Self {
+    pub fn new(account: &Account, idempotency_key: &str, amount: &BigDecimal) -> Self {
         Self {
             id: Uuid::new_v4(),
-            idempotency_key,
+            idempotency_key: idempotency_key.to_owned(),
             account_version: account.version,
             account_id: account.uuid,
-            currency: account.currency,
-            amount,
+            currency: account.currency.clone(),
+            amount: amount.clone(),
             created_at: Utc::now(),
         }
     }

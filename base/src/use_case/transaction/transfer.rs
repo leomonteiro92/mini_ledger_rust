@@ -38,7 +38,7 @@ impl<S: Storage> UseCase<TransferTransactionDTO, Vec<Transaction>> for TransferU
             .await?
             .ok_or("Destination account not found".to_string())?;
 
-        let (from_tx, to_tx) = input.to_transactions(from.clone(), to.clone());
+        let (from_tx, to_tx) = input.to_transactions(&from, &to);
         let updated_from = Account {
             balance: from.balance + from_tx.amount.clone(),
             ..from

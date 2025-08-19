@@ -29,7 +29,7 @@ impl<S: Storage> UseCase<DepositTransactionDTO, Vec<Transaction>> for DepositUse
             .get_account(input.account_id.clone())
             .await?
             .ok_or("Account not found".to_string())?;
-        let tx = input.to_transaction(to.clone());
+        let tx = input.to_transaction(&to);
         let updated_account = Account {
             balance: to.balance + tx.amount.clone(),
             ..to
