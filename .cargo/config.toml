@@ -1,9 +1,6 @@
-[build]
+[target.aarch64-apple-darwin]
 rustflags = [
     "-L", "/opt/homebrew/opt/openssl@3/lib",
     "-L", "/opt/homebrew/opt/cassandra-cpp-driver/lib", 
     "-L", "/opt/homebrew/opt/libuv/lib"
 ]
-
-[env]
-PKG_CONFIG_PATH = "/opt/homebrew/opt/openssl@3/lib/pkgconfig:$PKG_CONFIG_PATH"

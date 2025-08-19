@@ -37,5 +37,5 @@ brew install \
 ```
 Then build the app with the following command
 ```bash
-export PKG_CONFIG_PATH="/opt/homebrew/opt/openssl@3/lib/pkgconfig:$PKG_CONFIG_PATH" && export RUSTFLAGS="-L /opt/homebrew/opt/openssl@3/lib -L /opt/homebrew/opt/cassandra-cpp-driver/lib -L /opt/homebrew/opt/libuv/lib" && cargo build
+export RUSTFLAGS="-L /opt/homebrew/opt/openssl@3/lib -L /opt/homebrew/opt/cassandra-cpp-driver/lib -L /opt/homebrew/opt/libuv/lib" && cargo build
 ```
