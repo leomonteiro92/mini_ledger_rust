@@ -1,0 +1,5 @@
+@host = http://localhost:8080
+
+# Create account From
+GET {{host}}/accounts/0d6134fa-af04-421d-bb84-06bf3ab7c74c
+Content-Type: application/json

@@ -111,7 +111,7 @@ impl Storage for DynamoStorage {
                     "account_version",
                     Self::create_attr_value(tx.account_version),
                 )
-                .item("amount", Self::create_number_attr(tx.amount.with_prec(2)))
+                .item("amount", Self::create_number_attr(tx.amount.with_prec(32)))
                 .item(
                     "created_at_in_millis",
                     Self::create_number_attr(tx.created_at.timestamp_millis()),
@@ -135,9 +135,12 @@ impl Storage for DynamoStorage {
                 .table_name(TABLE_NAME)
                 .key("pk", Self::create_attr_value(&pk))
                 .key("sk", Self::create_attr_value(&pk))
-                .update_expression("SET balance = :amount, version = :newVersion")
+                .update_expression("SET balance = :balance, version = :newVersion")
                 .condition_expression("version = :expectedVersion")
-                .expression_attribute_values(":amount", Self::create_number_attr(&acc.balance))
+                .expression_attribute_values(
+                    ":balance",
+                    Self::create_number_attr(&acc.balance.with_prec(32)),
+                )
                 .expression_attribute_values(":newVersion", Self::create_attr_value(new_version))
                 .expression_attribute_values(
                     ":expectedVersion",

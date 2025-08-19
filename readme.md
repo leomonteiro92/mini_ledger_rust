@@ -22,3 +22,20 @@ Currency Support: Operates using a specified currency (e.g., BRL).
 
 ## Docs
 [Open API](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/leomonteiro92/mini_ledger_rust/refs/heads/main/openapi.yml)
+
+## Troubleshooting build
+### Mac OSx
+```bash
+brew install \
+    bash \
+    curl \
+    cmake \
+    openssl \
+    libuv \
+    zlib \
+    git
+```
+Then build the app with the following command
+```bash
+export PKG_CONFIG_PATH="/opt/homebrew/opt/openssl@3/lib/pkgconfig:$PKG_CONFIG_PATH" && export RUSTFLAGS="-L /opt/homebrew/opt/openssl@3/lib -L /opt/homebrew/opt/cassandra-cpp-driver/lib -L /opt/homebrew/opt/libuv/lib" && cargo build
+```

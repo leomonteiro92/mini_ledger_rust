@@ -33,6 +33,12 @@ async fn get_dynamo_storage() -> Result<Arc<Mutex<DynamoStorage>>, String> {
         .await
         .map_err(|err| format!("Failed to connect to DynamoDB: {}", err))?;
 
+    // if first run, create the tables in local dynamo
+    // match utils::create_table(&client).await {
+    //     Ok(_) => println!("Tables created successfully"),
+    //     Err(_) => println!("Error creating tables"),
+    // };
+
     Ok(Arc::new(Mutex::new(DynamoStorage::new(Arc::new(client)))))
 }
 

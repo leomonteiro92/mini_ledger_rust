@@ -1,0 +1,9 @@
+@host = http://localhost:8080
+
+# Create account From
+POST {{host}}/accounts
+Content-Type: application/json
+{
+    "currency": "BRL",
+    "uuid": "{{$guid}}"
+}
