@@ -1,0 +1,11 @@
+@host = http://localhost:8080
+
+# Create account From
+POST {{host}}/withdrawals
+Content-Type: application/json
+
+{
+    "amount": 9.99,
+    "account_id": "0d6134fa-af04-421d-bb84-06bf3ab7c74c",
+    "idempotency_key": "{{$guid}}"
+}

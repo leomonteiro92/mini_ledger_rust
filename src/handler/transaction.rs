@@ -12,8 +12,8 @@ pub async fn create_deposit(
 ) -> impl Responder {
     let result = state.deposit_uc.execute(deposit_request.into_inner()).await;
     result
-        .map(|txs| HttpResponse::Ok().json(txs))
-        .unwrap_or_else(|error| HttpResponse::BadRequest().body(error))
+        .map(|txs| HttpResponse::Created().json(txs))
+        .unwrap_or_else(|error| HttpResponse::InternalServerError().body(error))
 }
 
 #[post("/withdrawals")]
@@ -26,8 +26,8 @@ pub async fn create_withdrawal(
         .execute(withdrawal_request.into_inner())
         .await;
     result
-        .map(|txs| HttpResponse::Ok().json(txs))
-        .unwrap_or_else(|error| HttpResponse::BadRequest().body(error))
+        .map(|txs| HttpResponse::Created().json(txs))
+        .unwrap_or_else(|error| HttpResponse::InternalServerError().body(error))
 }
 
 #[post("/transfers")]
@@ -40,6 +40,6 @@ pub async fn create_transfer(
         .execute(transfer_request.into_inner())
         .await;
     result
-        .map(|txs| HttpResponse::Ok().json(txs))
-        .unwrap_or_else(|error| HttpResponse::BadRequest().body(error))
+        .map(|txs| HttpResponse::Created().json(txs))
+        .unwrap_or_else(|error| HttpResponse::InternalServerError().body(error))
 }
