@@ -12,8 +12,10 @@ pub struct GetAccountByUuidUseCase<S: Storage> {
 }
 
 impl<S: Storage> GetAccountByUuidUseCase<S> {
-    pub fn new(storage: Arc<Mutex<S>>) -> Self {
-        GetAccountByUuidUseCase { storage }
+    pub fn new(storage: &Arc<Mutex<S>>) -> Self {
+        GetAccountByUuidUseCase {
+            storage: Arc::clone(storage),
+        }
     }
 }
 
@@ -43,7 +45,7 @@ mod tests {
             .await
             .set_accounts(vec![(test_id, account.clone())].into_iter().collect())
             .await;
-        let use_case = GetAccountByUuidUseCase::new(storage.clone());
+        let use_case = GetAccountByUuidUseCase::new(&storage);
         let result = use_case.execute(test_id).await;
         assert!(result.is_ok());
         assert_eq!(result.unwrap(), Some(account));
@@ -53,7 +55,7 @@ mod tests {
     async fn test_execute_no_account_found() {
         let test_id = Uuid::new_v4();
         let storage = Arc::new(Mutex::new(InMemoryStorage::new()));
-        let use_case = GetAccountByUuidUseCase::new(storage.clone());
+        let use_case = GetAccountByUuidUseCase::new(&storage);
         let result = use_case.execute(test_id).await;
         assert!(result.is_ok());
         assert_eq!(result.unwrap(), None);

@@ -16,8 +16,10 @@ pub struct DepositUseCase<S: Storage> {
 }
 
 impl<S: Storage> DepositUseCase<S> {
-    pub fn new(storage: Arc<Mutex<S>>) -> Self {
-        DepositUseCase { storage }
+    pub fn new(storage: &Arc<Mutex<S>>) -> Self {
+        DepositUseCase {
+            storage: Arc::clone(storage),
+        }
     }
 }
 
@@ -60,7 +62,7 @@ mod tests {
             .await
             .set_accounts(vec![(account.uuid, account.clone())].into_iter().collect())
             .await;
-        let use_case = DepositUseCase::new(storage.clone());
+        let use_case = DepositUseCase::new(&storage);
 
         let result = use_case
             .execute(DepositTransactionDTO {
@@ -85,7 +87,7 @@ mod tests {
     async fn test_account_not_found() {
         let account = Account::new(Uuid::new_v4(), &"BRL".to_string());
         let storage = Arc::new(Mutex::new(InMemoryStorage::new()));
-        let use_case = DepositUseCase::new(storage.clone());
+        let use_case = DepositUseCase::new(&storage);
 
         let result = use_case
             .execute(DepositTransactionDTO {

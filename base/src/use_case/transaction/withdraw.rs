@@ -16,8 +16,10 @@ pub struct WithdrawalUseCase<S: Storage> {
 }
 
 impl<S: Storage> WithdrawalUseCase<S> {
-    pub fn new(storage: Arc<Mutex<S>>) -> Self {
-        WithdrawalUseCase { storage }
+    pub fn new(storage: &Arc<Mutex<S>>) -> Self {
+        WithdrawalUseCase {
+            storage: Arc::clone(storage),
+        }
     }
 }
 
@@ -66,7 +68,7 @@ mod tests {
     ) {
         let storage = Arc::new(Mutex::new(InMemoryStorage::new()));
         storage.lock().await.set_accounts(initial_accounts).await;
-        (storage.clone(), WithdrawalUseCase::new(storage))
+        (storage.clone(), WithdrawalUseCase::new(&storage))
     }
 
     #[tokio::test]

@@ -1,4 +1,3 @@
-use core::panic;
 use std::{env, sync::Arc};
 
 use base::{
@@ -28,7 +27,7 @@ async fn _get_cassandra_storage() -> Result<Arc<Mutex<CassandraStorage>>, String
     )))))
 }
 
-async fn get_dynamo_storage() -> Result<Arc<Mutex<DynamoStorage>>, String> {
+async fn _get_dynamo_storage() -> Result<Arc<Mutex<DynamoStorage>>, String> {
     let client = dynamo_storage::utils::connect()
         .await
         .map_err(|err| format!("Failed to connect to DynamoDB: {}", err))?;
@@ -42,21 +41,23 @@ async fn get_dynamo_storage() -> Result<Arc<Mutex<DynamoStorage>>, String> {
     Ok(Arc::new(Mutex::new(DynamoStorage::new(Arc::new(client)))))
 }
 
-async fn _get_in_memory_storage() -> Arc<Mutex<InMemoryStorage>> {
+async fn get_in_memory_storage() -> Arc<Mutex<InMemoryStorage>> {
     Arc::new(Mutex::new(InMemoryStorage::new()))
 }
 
 pub async fn bootstrap() -> AppState {
-    let storage = match get_dynamo_storage().await {
-        Ok(storage) => storage,
-        Err(err) => panic!("{}", err),
-    };
+    // Uncomment to use dynamo storage
+    // let storage = match get_dynamo_storage().await {
+    //     Ok(storage) => storage,
+    //     Err(err) => panic!("{}", err),
+    // };
+    let storage = get_in_memory_storage().await;
 
-    let create_account_uc = Arc::new(CreateAccountUseCase::new(storage.clone()));
-    let get_account_by_id_uc = Arc::new(GetAccountByUuidUseCase::new(storage.clone()));
-    let deposit_uc = Arc::new(DepositUseCase::new(storage.clone()));
-    let withdrawal_uc = Arc::new(WithdrawalUseCase::new(storage.clone()));
-    let transfer_uc = Arc::new(TransferUseCase::new(storage.clone()));
+    let create_account_uc = Arc::new(CreateAccountUseCase::new(&storage));
+    let get_account_by_id_uc = Arc::new(GetAccountByUuidUseCase::new(&storage));
+    let deposit_uc = Arc::new(DepositUseCase::new(&storage));
+    let withdrawal_uc = Arc::new(WithdrawalUseCase::new(&storage));
+    let transfer_uc = Arc::new(TransferUseCase::new(&storage));
 
     AppState::new(
         create_account_uc,

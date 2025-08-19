@@ -13,8 +13,10 @@ pub struct CreateAccountUseCase<S: Storage> {
 }
 
 impl<S: Storage> CreateAccountUseCase<S> {
-    pub fn new(storage: Arc<Mutex<S>>) -> Self {
-        CreateAccountUseCase { storage }
+    pub fn new(storage: &Arc<Mutex<S>>) -> Self {
+        CreateAccountUseCase {
+            storage: Arc::clone(storage),
+        }
     }
 }
 
@@ -42,7 +44,7 @@ mod tests {
         let test_uuid = Uuid::new_v4();
         let account = Account::new(test_uuid, &"BRL".to_string());
         let storage = Arc::new(Mutex::new(InMemoryStorage::new()));
-        let use_case = CreateAccountUseCase::new(storage.clone());
+        let use_case = CreateAccountUseCase::new(&storage);
         let input = AccountCreationDTO {
             uuid: test_uuid,
             currency: "BRL".to_string(),

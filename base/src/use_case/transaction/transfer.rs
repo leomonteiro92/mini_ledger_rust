@@ -16,8 +16,10 @@ pub struct TransferUseCase<S: Storage> {
 }
 
 impl<S: Storage> TransferUseCase<S> {
-    pub fn new(storage: Arc<Mutex<S>>) -> Self {
-        TransferUseCase { storage }
+    pub fn new(storage: &Arc<Mutex<S>>) -> Self {
+        TransferUseCase {
+            storage: Arc::clone(storage),
+        }
     }
 }
 
@@ -87,7 +89,7 @@ mod tests {
                     .collect(),
             )
             .await;
-        (storage.clone(), TransferUseCase::new(storage), from, to)
+        (storage.clone(), TransferUseCase::new(&storage), from, to)
     }
 
     async fn assert_balances(
