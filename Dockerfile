@@ -5,6 +5,8 @@ FROM rust:1.89-alpine
 RUN apk add --no-cache \
     bash \
     curl \
+    libstdc++ \
+    libstdc++-dev \
     musl \
     musl-dev \
     cassandra-cpp-driver \
