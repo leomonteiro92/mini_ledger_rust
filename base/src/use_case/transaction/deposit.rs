@@ -84,6 +84,54 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn test_concurrent_successful() {
+        let account = Account::new(Uuid::new_v4(), &"BRL".to_string());
+        let storage = Arc::new(Mutex::new(InMemoryStorage::new()));
+        storage
+            .lock()
+            .await
+            .set_accounts(vec![(account.uuid, account.clone())].into_iter().collect())
+            .await;
+
+        let deposit_amount = BigDecimal::from_f64(10.0).unwrap();
+
+        // Spawn 10 concurrent deposit tasks
+        let mut handles = vec![];
+        for i in 0..10 {
+            let use_case: DepositUseCase<InMemoryStorage> = DepositUseCase::new(&storage);
+            let account_id = account.uuid;
+            let amount = deposit_amount.clone();
+            let handle = tokio::spawn(async move {
+                use_case
+                    .execute(DepositTransactionDTO {
+                        idempotency_key: format!("idemp_{}", i),
+                        account_id,
+                        amount,
+                    })
+                    .await
+            });
+            handles.push(handle);
+        }
+
+        // Wait for all tasks to complete
+        let mut successful_deposits = 0;
+        for handle in handles {
+            let result = handle.await.unwrap();
+            assert!(result.is_ok());
+            successful_deposits += 1;
+        }
+
+        // Verify all 10 deposits were successful
+        assert_eq!(successful_deposits, 10);
+
+        // Verify the final account balance is correct (10 * 10.0 = 100.0)
+        let storage = storage.lock().await;
+        let updated_account = storage.get_account(account.uuid).await.unwrap().unwrap();
+        let expected_balance = BigDecimal::from_f64(100.0).unwrap();
+        assert_eq!(updated_account.balance, expected_balance);
+    }
+
+    #[tokio::test]
     async fn test_account_not_found() {
         let account = Account::new(Uuid::new_v4(), &"BRL".to_string());
         let storage = Arc::new(Mutex::new(InMemoryStorage::new()));

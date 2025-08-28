@@ -129,4 +129,48 @@ mod tests {
         assert!(result.is_err());
         assert_eq!(result.unwrap_err(), "Insufficient balance");
     }
+
+    #[tokio::test]
+    async fn test_execute_concurrent() {
+        let mut account = Account::new(Uuid::new_v4(), &"BRL".to_string());
+        account.balance = BigDecimal::from_f64(100.0).unwrap();
+        let (_, use_case) =
+            setup(vec![(account.uuid, account.clone())].into_iter().collect()).await;
+
+        let use_case = Arc::new(use_case);
+        let mut handles = vec![];
+
+        for i in 0..10 {
+            let use_case_clone = Arc::clone(&use_case);
+            let account_id = account.uuid;
+            let handle = tokio::spawn(async move {
+                use_case_clone
+                    .execute(WithdrawalTransactionDTO {
+                        idempotency_key: format!("idemp_{}", i),
+                        account_id,
+                        amount: BigDecimal::from_f64(25.0).unwrap(),
+                    })
+                    .await
+            });
+            handles.push(handle);
+        }
+
+        let results = futures::future::join_all(handles).await;
+        
+        let mut successful_count = 0;
+        let mut failed_count = 0;
+
+        for result in results {
+            let withdrawal_result = result.unwrap();
+            if withdrawal_result.is_ok() {
+                successful_count += 1;
+            } else {
+                failed_count += 1;
+                assert_eq!(withdrawal_result.unwrap_err(), "Insufficient balance");
+            }
+        }
+
+        assert_eq!(successful_count, 4);
+        assert_eq!(failed_count, 6);
+    }
 }
